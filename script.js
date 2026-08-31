@@ -337,3 +337,94 @@ document.querySelectorAll('[data-count]').forEach(c => countObserver.observe(c))
   }
   frame();
 })();
+
+// ---- Market ticker (crypto live via Binance, others simulated) ----
+(function () {
+  var track = document.getElementById('tickerTrack');
+  if (!track) return;
+
+  // Crypto pulled live from Binance public API (no key, CORS-friendly)
+  var cryptos = [
+    { sym: 'BTC', pair: 'BTCUSDT' },
+    { sym: 'ETH', pair: 'ETHUSDT' },
+    { sym: 'SOL', pair: 'SOLUSDT' },
+    { sym: 'BNB', pair: 'BNBUSDT' },
+    { sym: 'XRP', pair: 'XRPUSDT' }
+  ];
+  // Simulated (no free keyless feed): seeded, drift a little each refresh
+  var sims = [
+    { sym: 'XAU', price: 2418.4, dp: 1 },
+    { sym: 'EUR/USD', price: 1.0842, dp: 4 },
+    { sym: 'GBP/USD', price: 1.2715, dp: 4 },
+    { sym: 'NAS100', price: 19210, dp: 0 },
+    { sym: 'US30', price: 40120, dp: 0 },
+    { sym: 'USOIL', price: 78.4, dp: 1 },
+    { sym: 'SILVER', price: 29.8, dp: 2 }
+  ];
+
+  function fmt(n, dp) { return Number(n).toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp }); }
+
+  function itemHTML(sym, price, chg) {
+    var up = chg >= 0;
+    var cls = up ? 'text-pos' : 'text-neg';
+    var arrow = up ? '▲' : '▼';
+    var sign = up ? '+' : '';
+    return '<span class="text-slate-300 mr-8">' + sym + ' <span class="' + cls + '">' + arrow + ' ' + price + ' ' + sign + chg.toFixed(2) + '%</span></span>';
+  }
+
+  function render(rows) {
+    // duplicate list for seamless loop
+    var html = rows.map(function (r) { return itemHTML(r.sym, r.price, r.chg); }).join('');
+    track.innerHTML = html + html;
+  }
+
+  function simTick() {
+    return sims.map(function (s) {
+      var drift = (Math.random() - 0.5) * (s.price * 0.002);
+      s.price = Math.max(0.0001, s.price + drift);
+      var chg = (Math.random() * 2 - 0.6);
+      return { sym: s.sym, price: fmt(s.price, s.dp), chg: chg };
+    });
+  }
+
+  function loadCrypto() {
+    return fetch('https://api.binance.com/api/v3/ticker/24hr')
+      .then(function (r) { return r.json(); })
+      .then(function (all) {
+        var map = {};
+        all.forEach(function (t) { map[t.symbol] = t; });
+        return cryptos.map(function (c) {
+          var t = map[c.pair];
+          if (!t) return { sym: c.sym, price: '—', chg: 0 };
+          var p = parseFloat(t.lastPrice);
+          return { sym: c.sym, price: fmt(p, p > 100 ? 0 : 2), chg: parseFloat(t.priceChangePercent) };
+        });
+      })
+      .catch(function () {
+        // fallback if offline/blocked: simulate crypto too
+        return cryptos.map(function (c) { return { sym: c.sym, price: '—', chg: (Math.random() * 2 - 1) }; });
+      });
+  }
+
+  function refresh() {
+    loadCrypto().then(function (cryptoRows) {
+      render(cryptoRows.concat(simTick()));
+    });
+  }
+  refresh();
+  setInterval(refresh, 15000); // update every 15s
+
+  // continuous scroll via JS (independent of content width)
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!reduce) {
+    var offset = 0;
+    function scrollStep() {
+      offset -= 0.5;
+      var half = track.scrollWidth / 2;
+      if (half > 0 && -offset >= half) offset += half;
+      track.style.transform = 'translateX(' + offset + 'px)';
+      requestAnimationFrame(scrollStep);
+    }
+    requestAnimationFrame(scrollStep);
+  }
+})();
