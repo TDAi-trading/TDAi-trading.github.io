@@ -200,18 +200,12 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <div class="field" style="grid-column:1/-1">
-      <label for="multRange">Want liquidation further out?
-        <span id="multOut">2.5×</span></label>
+      <label for="levRange">Leverage <span id="levOut">5×</span></label>
       <div class="sliderrow">
-        <input type="range" id="multRange" min="1" max="10" step="0.5" value="2.5"
-               aria-label="Liquidation multiple">
-        <button class="ghost" id="multOff" type="button">off</button>
-        <button class="ghost" id="multPrice" type="button">price</button>
-      </div>
-      <input id="target" inputmode="decimal" placeholder="liquidation price"
-             autocomplete="off" style="margin-top:8px;display:none">
-      <input id="mmr" type="hidden" value="0.5">
-    </div>
+        <input type="range" id="levRange" min="1" max="100" step="1" value="5"
+               aria-label="Leverage">
+        <input id="lev" inputmode="numeric" autocomplete="off" value="5" class="levnum">
+      </div></div>
     <div class="field" style="grid-column:1/-1">
       <label for="splitRange">How much goes in on the first entry
         <span id="splitOut">45%</span></label>
@@ -248,19 +242,12 @@ tr:last-child td{border-bottom:0}
         makes that stop cost more. To use the room, raise the loss you
         accept in step 2 — or move the stop closer.</p>
     </div>
-    <div class="field"><label for="margin">Margin for the whole trade (USDT)
+    <div class="field" style="grid-column:1/-1"><label for="margin">Margin for the whole trade (USDT)
         <span class="why" id="marginWhy"></span></label>
       <div class="sliderrow">
         <input id="margin" inputmode="decimal" autocomplete="off" value="">
         <button class="ghost" id="marginReset" type="button"
                 title="Go back to what step 2 asked for">use step 2</button>
-      </div></div>
-    <div class="field">
-      <label for="levRange">Leverage <span id="levOut">5×</span></label>
-      <div class="sliderrow">
-        <input type="range" id="levRange" min="1" max="100" step="1" value="5"
-               aria-label="Leverage">
-        <input id="lev" inputmode="numeric" autocomplete="off" value="5" class="levnum">
       </div></div>
   </div>
   <div class="card" id="liqCard">
@@ -292,6 +279,19 @@ tr:last-child td{border-bottom:0}
       <tr hidden><td class="k">Loss if the stop fills</td><td id="oStopLoss">—</td></tr>
       <tr hidden><td class="k">If you post the margin from step 3 instead</td><td id="rmLev">—</td></tr>
     </table>
+  </div>
+  <div class="field" style="margin-top:14px">
+    <label for="multRange">Want liquidation further out?
+      <span id="multOut">2.5×</span></label>
+    <div class="sliderrow">
+      <input type="range" id="multRange" min="1" max="10" step="0.5" value="2.5"
+             aria-label="Liquidation multiple">
+      <button class="ghost" id="multOff" type="button">off</button>
+      <button class="ghost" id="multPrice" type="button">price</button>
+    </div>
+    <input id="target" inputmode="decimal" placeholder="liquidation price"
+           autocomplete="off" style="margin-top:8px;display:none">
+    <input id="mmr" type="hidden" value="0.5">
   </div>
   <div class="card two" id="sizeCard">
     <div>
