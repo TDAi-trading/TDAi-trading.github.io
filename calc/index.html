@@ -226,6 +226,11 @@ tr:last-child td{border-bottom:0}
       <div class="cap">Margin it needs</div>
       <div class="big" id="rmMargin">—</div>
     </div>
+    <div>
+      <div class="cap">Liquidation</div>
+      <div class="big" id="rmLiq">—</div>
+      <div class="cap" id="rmLiqNote" style="margin-top:6px">&nbsp;</div>
+    </div>
     <div class="note" id="rmNote" style="grid-column:1/-1">
       Enter an entry, a stop and the loss you accept.</div>
   </div>
@@ -771,6 +776,9 @@ let sizingCache = {};
 function all(){
   sizingCache = sizing();      // sets the margin box when you have not
   const ctx = liquidation();
+  // the same liquidation step 3 works out, shown under step 2's sizing
+  $("rmLiq").textContent = $("liqPrice").textContent;
+  $("rmLiqNote").textContent = $("liqNote").textContent;
   target(ctx);
   rest(ctx);
 }
@@ -780,7 +788,10 @@ function all(){
 // YOUR CLOUDFLARE WORKER - paste its address here, no slash at the end
 const WORKER_URL = "https://late-silence-2da9.murtazahaidersyed.workers.dev";
 // ==================================================================
-const API = WORKER_URL;
+// Served by liqserve.py on this machine or the home network, prices go
+// through its own /mexc relay; everywhere else through the Worker.
+const _LOCAL = /^(localhost|127\.|192\.168\.|10\.)/.test(location.hostname);
+const API = _LOCAL ? "/mexc" : WORKER_URL;
 // Telegram signs every launch from your bot; the Worker checks it.
 function _tgInit(){
   try{ return (window.Telegram && window.Telegram.WebApp
