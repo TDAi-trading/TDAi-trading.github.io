@@ -200,6 +200,19 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <div class="field" style="grid-column:1/-1">
+      <label for="multRange">Want liquidation further out?
+        <span id="multOut">2.5×</span></label>
+      <div class="sliderrow">
+        <input type="range" id="multRange" min="1" max="10" step="0.5" value="2.5"
+               aria-label="Liquidation multiple">
+        <button class="ghost" id="multOff" type="button">off</button>
+        <button class="ghost" id="multPrice" type="button">price</button>
+      </div>
+      <input id="target" inputmode="decimal" placeholder="liquidation price"
+             autocomplete="off" style="margin-top:8px;display:none">
+      <input id="mmr" type="hidden" value="0.5">
+    </div>
+    <div class="field" style="grid-column:1/-1">
       <label for="splitRange">How much goes in on the first entry
         <span id="splitOut">45%</span></label>
       <div class="sliderrow">
@@ -221,14 +234,6 @@ tr:last-child td{border-bottom:0}
     </div>
     <div class="note" id="rmNote" style="grid-column:1/-1">
       Enter an entry, a stop and the loss you accept.</div>
-    <table style="grid-column:1/-1">
-      <tr><td class="k">If you post the margin from step 3 instead</td><td id="rmLev">—</td></tr>
-      <tr><td class="k">First entry</td><td id="rmE1">—</td></tr>
-      <tr><td class="k">Held back for entry 2</td><td id="rmE2">—</td></tr>
-      <tr><td class="k">Stop distance</td><td id="rmDist">—</td></tr>
-      <tr><td class="k">Loss as a share of the wallet</td><td id="rmRiskPct">—</td></tr>
-      <tr><td class="k">20% of wallet, for reference</td><td id="rmRec">—</td></tr>
-    </table>
   </div>
 </section>
 
@@ -273,27 +278,20 @@ tr:last-child td{border-bottom:0}
       </div>
     </div>
     <table>
+      <tr><td class="k">First entry</td><td id="rmE1">—</td></tr>
+      <tr><td class="k">Held back for entry 2</td><td id="rmE2">—</td></tr>
+      <tr><td class="k">Stop distance</td><td id="rmDist">—</td></tr>
       <tr><td class="k">Position this margin buys</td><td id="oNotional">—</td></tr>
+      <tr><td class="k">Against the size step 2 called for</td><td id="oVsPlan">—</td></tr>
       <tr><td class="k">Coins</td><td id="oQty">—</td></tr>
       <tr><td class="k">Backing the trade</td><td id="oBack">—</td></tr>
-      <tr><td class="k">Loss if the stop fills</td><td id="oStopLoss">—</td></tr>
-      <tr><td class="k">Against the size step 2 called for</td><td id="oVsPlan">—</td></tr>
-      <tr><td class="k">So the loss you are really accepting</td><td id="oRealRisk">—</td></tr>
+      <tr><td class="k">Loss if the stop fills</td><td id="oRealRisk">—</td></tr>
+      <tr><td class="k">Risk level</td><td id="rmRiskPct">—</td></tr>
+      <tr><td class="k">20% of wallet, for reference</td><td id="rmRec">—</td></tr>
       <tr><td class="k">Maintenance margin rate</td><td id="mmrShow">—</td></tr>
+      <tr hidden><td class="k">Loss if the stop fills</td><td id="oStopLoss">—</td></tr>
+      <tr hidden><td class="k">If you post the margin from step 3 instead</td><td id="rmLev">—</td></tr>
     </table>
-  </div>
-  <div class="field" style="margin-top:14px">
-    <label for="multRange">Want liquidation further out?
-      <span id="multOut">2.5×</span></label>
-    <div class="sliderrow">
-      <input type="range" id="multRange" min="1" max="10" step="0.5" value="2.5"
-             aria-label="Liquidation multiple">
-      <button class="ghost" id="multOff" type="button">off</button>
-      <button class="ghost" id="multPrice" type="button">price</button>
-    </div>
-    <input id="target" inputmode="decimal" placeholder="liquidation price"
-           autocomplete="off" style="margin-top:8px;display:none">
-    <input id="mmr" type="hidden" value="0.5">
   </div>
   <div class="card two" id="sizeCard">
     <div>
