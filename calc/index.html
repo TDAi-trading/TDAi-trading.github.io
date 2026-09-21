@@ -80,6 +80,15 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;
 #multOff[aria-pressed="true"],#multPrice[aria-pressed="true"]{
   background:var(--line);color:var(--text)}
 #levOut{float:right;font-family:"IBM Plex Mono",monospace;color:var(--cool);font-size:14px}
+.feature{margin-top:22px;padding:18px 18px 16px;border:2px solid var(--cool);
+  border-radius:12px;background:linear-gradient(180deg,rgba(88,166,255,.10),rgba(88,166,255,.02));
+  box-shadow:0 0 0 1px rgba(88,166,255,.15),0 6px 24px rgba(88,166,255,.18)}
+.feature > .field > label[for="multRange"]{font-size:20px;font-weight:700;color:var(--text)}
+.feature #multOut{font-size:20px;float:none;margin-left:10px}
+.feature .sub{margin:10px 0 0;color:var(--dim);font-size:14px;
+  white-space:normal;overflow-wrap:anywhere}
+.feature input[type=range]#multRange{height:8px}
+.feature #sizeCard{margin-top:14px;border-color:var(--cool)}
 #multOut{float:right;font-family:"IBM Plex Mono",monospace;color:var(--warn);font-size:14px}
 #allocOut{float:right;font-family:"IBM Plex Mono",monospace;color:var(--warn);font-size:14px}
 .backlink{display:inline-flex;align-items:center;gap:8px;margin:0 0 16px;
@@ -99,6 +108,17 @@ input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;
 .two{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px;align-items:start}
 .two .big{font-size:25px}
 @media (max-width:560px){.two{grid-template-columns:1fr}}
+#rmCard #rmLiq.good{color:var(--live)}
+#rmCard #rmLiq.warn{color:var(--warn)}
+#rmCard #rmLiq.danger{color:var(--danger)}
+#rmNote.liqline{font-size:20px;font-weight:700;line-height:1.35}
+#rmNote.liqline.good{color:var(--live)}
+#rmNote.liqline.warn{color:var(--warn)}
+#rmNote.liqline.danger{color:var(--danger)}
+@media (min-width:561px){
+  #rmCard #rmNote{grid-column:2;grid-row:2;margin-top:0}
+  #rmCard #rmLiqBox{grid-column:1;grid-row:2}
+}
 .verdict{font-family:"IBM Plex Sans",sans-serif;font-size:19px;font-weight:600}
 
 table{width:100%;border-collapse:collapse;font-size:15.5px}
@@ -226,27 +246,19 @@ tr:last-child td{border-bottom:0}
       <div class="cap">Margin it needs</div>
       <div class="big" id="rmMargin">—</div>
     </div>
-    <div>
+    <div class="note" id="rmNote">
+      Enter an entry, a stop and the loss you accept.</div>
+    <div id="rmLiqBox">
       <div class="cap">Liquidation</div>
       <div class="big" id="rmLiq">—</div>
       <div class="cap" id="rmLiqNote" style="margin-top:6px">&nbsp;</div>
     </div>
-    <div class="note" id="rmNote" style="grid-column:1/-1">
-      Enter an entry, a stop and the loss you accept.</div>
   </div>
 </section>
 
 <section>
-  <h2><span class="step">3</span>Does liquidation get in the way?</h2>
-  <p class="lede">The stop must come first. If liquidation is nearer, the
-    trade is already lost.</p>
+  <h2><span class="step">3</span>Still want to adjust margin?</h2>
   <div class="grid">
-    <div class="field" style="grid-column:1/-1">
-      <p class="hint" style="margin:0 0 4px">Liquidation being far away is
-        not spare room: the stop still fills first, and a bigger position
-        makes that stop cost more. To use the room, raise the loss you
-        accept in step 2 — or move the stop closer.</p>
-    </div>
     <div class="field" style="grid-column:1/-1"><label for="margin">Margin for the whole trade (USDT)
         <span class="why" id="marginWhy"></span></label>
       <div class="sliderrow">
@@ -285,8 +297,9 @@ tr:last-child td{border-bottom:0}
       <tr hidden><td class="k">If you post the margin from step 3 instead</td><td id="rmLev">—</td></tr>
     </table>
   </div>
-  <div class="field" style="margin-top:14px">
-    <label for="multRange">Want liquidation further out?
+  <div class="feature">
+  <div class="field">
+    <label for="multRange">🛡️ Want liquidation further out?
       <span id="multOut">2.5×</span></label>
     <div class="sliderrow">
       <input type="range" id="multRange" min="1" max="10" step="0.5" value="2.5"
@@ -296,6 +309,7 @@ tr:last-child td{border-bottom:0}
     </div>
     <input id="target" inputmode="decimal" placeholder="liquidation price"
            autocomplete="off" style="margin-top:8px;display:none">
+    <p class="sub">Pick how far liquidation should sit, and see the margin it takes.</p>
     <input id="mmr" type="hidden" value="0.5">
   </div>
   <div class="card two" id="sizeCard">
@@ -314,6 +328,7 @@ tr:last-child td{border-bottom:0}
       <tr><td class="k">Position that backing covers</td><td id="sFits">—</td></tr>
       <tr><td class="k">On your exchange, set</td><td id="sHow">—</td></tr>
     </table>
+  </div>
   </div>
 </section>
 
@@ -547,9 +562,7 @@ function sizing(){
   const rp = wallet > 0 ? loss / wallet * 100 : NaN;
   $("rmRiskPct").innerHTML = grade(rp);
   $("rmCard").className = "card two " + (rp > 10 ? "danger" : rp > 5 ? "warn" : "good");
-  $("rmNote").textContent =
-    `A ${money(pos)} USDT position puts exactly ${money(loss)} USDT on the `
-    + `line at your stop — ${pct(dist * 100)} away.`;
+  $("rmNote").textContent = "\u00a0";
   return {entry, stop, pos, dist, wallet, loss};
 }
 
@@ -588,7 +601,7 @@ function liquidation(){
   $("liqNote").textContent = dead ? "maintenance exceeds the backing"
     : unreachable
       ? "the backing outlasts a fall to zero"
-      : pct(liqPct) + " away, " + (cross ? "cross" : "isolated");
+      : pct(liqPct) + " from entry, " + (cross ? "cross" : "isolated");
   $("oNotional").textContent = money(notional) + " USDT";
   $("oQty").textContent = px(qty) + (CONTRACT !== 1
     ? "  (" + money(qty / CONTRACT) + " contracts)" : "");
@@ -601,7 +614,7 @@ function liquidation(){
     const stopPct = Math.abs(stop - entry) / entry * 100;
     const stopLoss = notional * stopPct / 100;
     $("stopShow").textContent = px(stop);
-    $("stopNote").textContent = pct(stopPct) + " away";
+    $("stopNote").textContent = pct(stopPct) + " from entry";
     $("oStopLoss").textContent = money(stopLoss) + " USDT";
     // The other half of the question: liquidation may be miles away
     // and the trade still be six times the size you sized for. Step 2
@@ -653,7 +666,8 @@ function liquidation(){
     $("verdict").textContent = "Add a stop to see which comes first";
     $("liqCard").className = "card";
   }
-  return {entry, lev, myMargin, mmr, stop, wallet, long, notional, backing, cross};
+  return {entry, lev, myMargin, mmr, stop, wallet, long, notional, backing, cross,
+          liqPct, dead, unreachable};
 }
 
 /* ---------------- step 3b: what a further liquidation costs ----- */
@@ -774,11 +788,26 @@ function rrGrade(r){
 
 let sizingCache = {};
 function all(){
+  $("rmNote").className = "note";
+  $("rmLiq").className = "big";
   sizingCache = sizing();      // sets the margin box when you have not
   const ctx = liquidation();
-  // the same liquidation step 3 works out, shown under step 2's sizing
+  // the same liquidation step 3 works out, shown under step 2's sizing,
+  // with how many stop-distances away from entry it sits
   $("rmLiq").textContent = $("liqPrice").textContent;
-  $("rmLiqNote").textContent = $("liqNote").textContent;
+  const okLiq = ctx && ctx.liqPct > 0 && !ctx.dead && !ctx.unreachable;
+  $("rmLiqNote").textContent = okLiq ? (ctx.cross ? "cross" : "isolated")
+    : $("liqNote").textContent;
+  if(okLiq && sizingCache && sizingCache.dist > 0){
+    const times = ctx.liqPct / (sizingCache.dist * 100);
+    $("rmNote").textContent = `Liquidation is ${times.toFixed(1)}× `
+      + `(${pct(ctx.liqPct)}) away from entry`;
+    // green when well past the stop, amber when close, red when
+    // liquidation comes before the stop
+    const tone = times >= 2 ? "good" : times >= 1 ? "warn" : "danger";
+    $("rmNote").className = "note liqline " + tone;
+    $("rmLiq").className = "big " + tone;
+  }
   target(ctx);
   rest(ctx);
 }
